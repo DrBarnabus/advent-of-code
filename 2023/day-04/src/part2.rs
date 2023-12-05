@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use nom::bytes::complete::{tag, take_until};
 use nom::character::complete;
 use nom::character::complete::{line_ending, space0, space1};
@@ -18,13 +18,6 @@ struct Card {
 impl Card {
     fn count_matches(&self) -> usize {
         self.winning_numbers.intersection(&self.numbers).count()
-    }
-
-    fn calculate_score(&self) -> u32 {
-        match self.count_matches().checked_sub(1) {
-            Some(matches) => 2u32.pow(matches as u32),
-            None => 0
-        }
     }
 }
 
@@ -58,9 +51,24 @@ fn parse_cards(input: &str) -> IResult<&str, Vec<Card>> {
 pub fn process(input: &str) -> String {
     let (_, cards) = parse_cards(input).expect("valid parsed data");
 
+    let matched_cards = (0..cards.len())
+        .map(|i| (i, 1))
+        .collect::<BTreeMap<usize, u32>>();
+
     cards
         .iter()
-        .map(|card| card.calculate_score())
+        .map(|c| c.count_matches())
+        .enumerate()
+        .fold(matched_cards, |mut acc, (index, matches)| {
+            let to_add = *acc.get(&index).unwrap();
+
+            for i in (index + 1)..(index + 1 + matches) {
+                acc.entry(i).and_modify(|v| *v += to_add);
+            }
+
+            acc
+        })
+        .values()
         .sum::<u32>()
         .to_string()
 }
@@ -72,6 +80,6 @@ mod tests {
     #[test]
     fn it_works() {
         let result = process(include_str!("example.txt"));
-        assert_eq!(result, "13");
+        assert_eq!(result, "30");
     }
 }
