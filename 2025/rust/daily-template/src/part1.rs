@@ -7,7 +7,7 @@ pub fn process(_input: &str) -> miette::Result<String> {
 mod tests {
     use super::*;
 
-    #[test]
+    #[test_log::test]
     fn test_process() -> miette::Result<()> {
         todo!("test");
         let input = "";

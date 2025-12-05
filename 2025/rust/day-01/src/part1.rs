@@ -12,15 +12,18 @@ const STARTING_POSITION: i32 = 50;
 pub fn process(input: &str) -> miette::Result<String> {
     let (_, directions) = directions.parse(input).unwrap();
 
-    let (_final_position, counter) = directions.iter().fold((STARTING_POSITION, 0), |(dial_position, counter), direction| {
-        let turns = match direction {
-            Direction::Left(turns) => -turns,
-            Direction::Right(turns) => *turns,
-        };
+    let (_final_position, counter) =
+        directions
+            .iter()
+            .fold((STARTING_POSITION, 0), |(dial_position, counter), direction| {
+                let turns = match direction {
+                    Direction::Left(turns) => -turns,
+                    Direction::Right(turns) => *turns,
+                };
 
-        let next_dial = (dial_position - turns).rem_euclid(100);
-        (next_dial, counter + if next_dial == 0 { 1 } else { 0 })
-    });
+                let next_dial = (dial_position - turns).rem_euclid(100);
+                (next_dial, counter + if next_dial == 0 { 1 } else { 0 })
+            });
 
     Ok(counter.to_string())
 }

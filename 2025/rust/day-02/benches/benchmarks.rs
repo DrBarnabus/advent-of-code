@@ -1,4 +1,4 @@
-use day_01::*;
+use day_02::*;
 
 fn main() {
     divan::main();
